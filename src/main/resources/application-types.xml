@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="Auth_RegisterExample" format="json">
+      <types:shape format="weave" example="examples/Auth_registerExample.json"><![CDATA[%dw 2.0
+
+type Auth_RegisterExample = {|
+  profile: {|
+    firstName: String, 
+    lastName: String, 
+    email: String, 
+    login: String, 
+    mobilePhone: Number {"typeId": "double"}
+  |}, 
+  credentials: {|
+    password: {| value: String |}, 
+    recovery_question: {|
+      question: String, 
+      answer: String
+    |}
+  |}
+|} {"example": "{\\\"profile\\\":{\\\"firstName\\\":\\\"Isaac\\\",\\\"lastName\\\":\\\"Brock\\\",\\\"email\\\":\\\"trainrail05@gmail.com\\\",\\\"login\\\":\\\"trainrail05@gmail.com\\\",\\\"mobilePhone\\\":9862317890},\\\"credentials\\\":{\\\"password\\\":{\\\"value\\\":\\\"usrlndn325\\\"},\\\"recovery_question\\\":{\\\"question\\\":\\\"Who's a major player in the cowboy scene?\\\",\\\"answer\\\":\\\"Annie Oakley\\\"}}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="Auth_inputEx" format="json">
+      <types:shape format="weave" example="examples/auth_inputEX-1.json"><![CDATA[%dw 2.0
+
+type Auth_inputEx = {|
+  firstName: String, 
+  lastName: String, 
+  phoneNumber: Number {"typeId": "double"}, 
+  email: String, 
+  login: String, 
+  password: String, 
+  question: String, 
+  answer: String
+|} {"example": "{\\\"firstName\\\":\\\"Isaac\\\",\\\"lastName\\\":\\\"Brock\\\",\\\"phoneNumber\\\":9986231790,\\\"email\\\":\\\"trainrail05@gmail.com\\\",\\\"login\\\":\\\"trainrail05@gmail.com\\\",\\\"password\\\":\\\"usrlndn325\\\",\\\"question\\\":\\\"Who's a major player in the cowboy scene?\\\",\\\"answer\\\":\\\"Annie Oakley\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="Auth_VerifyEx" format="json">
+      <types:shape format="weave" example="examples/Auth_VerifyEx.json"><![CDATA[%dw 2.0
+
+type Auth_VerifyEx = {|
+  username: String, 
+  password: String, 
+  options: {|
+    multiOptionalFactorEnroll: Boolean, 
+    warnBeforePasswordExpired: Boolean
+  |}
+|} {"example": "{\\\"username\\\":\\\"trainrail04@gmail.com\\\",\\\"password\\\":\\\"usrlndn324\\\",\\\"options\\\":{\\\"multiOptionalFactorEnroll\\\":false,\\\"warnBeforePasswordExpired\\\":false}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="Auth-VerifyInputEx" format="json">
+      <types:shape format="weave" example="examples/auth-verifyInput.json"><![CDATA[%dw 2.0
+
+type Auth_VerifyInputEx = {|
+  login: String, 
+  password: String
+|} {"example": "{\\\"login\\\":\\\"Johnsmith@example.com\\\",\\\"password\\\":\\\"Johnsmith\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="VerifyReturnEx" format="json">
+      <types:shape format="weave" example="examples/ReturnValues.json"><![CDATA[%dw 2.0
+
+type VerifyReturnEx = {|
+  expiresAt: String, 
+  status: String, 
+  sessionToken: String, 
+  "_embedded": {|
+    user: {|
+      id: String, 
+      passwordChanged: String, 
+      profile: {|
+        login: String, 
+        firstName: String, 
+        lastName: String, 
+        mobilePhone: String, 
+        secondEmail: Null, 
+        locale: String, 
+        timeZone: String
+      |}
+    |}
+  |}, 
+  "_links": {|
+    cancel: {|
+      href: String, 
+      hints: {| allow: Array<String> |}
+    |}
+  |}
+|} {"example": "{\\\"expiresAt\\\":\\\"2021-05-30T08:50:32.000Z\\\",\\\"status\\\":\\\"SUCCESS\\\",\\\"sessionToken\\\":\\\"20111mzDDrZPuAGmAVSG5zMEBDJ-GJfTfAlTiROWhHosFGEKpNevbsY\\\",\\\"_embedded\\\":{\\\"user\\\":{\\\"id\\\":\\\"00usv3iylwsa0ndyx5d6\\\",\\\"passwordChanged\\\":\\\"2021-05-24T08:35:45.000Z\\\",\\\"profile\\\":{\\\"login\\\":\\\"trainrail96@gmail.com\\\",\\\"firstName\\\":\\\"Isaac\\\",\\\"lastName\\\":\\\"Brock\\\",\\\"mobilePhone\\\":\\\"9862317890\\\",\\\"secondEmail\\\":null,\\\"locale\\\":\\\"en\\\",\\\"timeZone\\\":\\\"America\\/Los_Angeles\\\"}}},\\\"_links\\\":{\\\"cancel\\\":{\\\"href\\\":\\\"https:\\/\\/dev-46069497.okta.com\\/api\\/v1\\/authn\\/cancel\\\",\\\"hints\\\":{\\\"allow\\\":[\\\"POST\\\"]}}}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="FindUserResultEx" format="json">
+      <types:shape format="weave" example="examples/findUserResult.json"><![CDATA[%dw 2.0
+
+type FindUserResultEx = Array<{|  id: String,   status: String,   created: String,   activated: String,   statusChanged: String,   lastLogin: String,   lastUpdated: String,   passwordChanged: String,   "type": {| id: String |},   profile: {|    firstName: String,     lastName: String,     mobilePhone: String,     secondEmail: Null,     login: String,     email: String  |},   credentials: {|    password: {|  |},     emails: Array<{|      value: String,       status: String,       "type": String    |}>, 
+    recovery_question: {| question: String |}, 
+    provider: {|
+      "type": String, 
+      name: String
+    |}
+  |}, 
+  "_links": {| self: {| href: String |} |}
+|}> {"example": "[{\\\"id\\\":\\\"00uu6x4cruyKyx8cV5d6\\\",\\\"status\\\":\\\"ACTIVE\\\",\\\"created\\\":\\\"2021-05-30T13:09:07.000Z\\\",\\\"activated\\\":\\\"2021-05-30T13:09:07.000Z\\\",\\\"statusChanged\\\":\\\"2021-05-30T13:09:07.000Z\\\",\\\"lastLogin\\\":\\\"2021-05-30T14:33:17.000Z\\\",\\\"lastUpdated\\\":\\\"2021-05-30T14:33:21.000Z\\\",\\\"passwordChanged\\\":\\\"2021-05-30T14:33:21.000Z\\\",\\\"type\\\":{\\\"id\\\":\\\"otyq5rg72xsgQVeem5d6\\\"},\\\"profile\\\":{\\\"firstName\\\":\\\"Issac\\\",\\\"lastName\\\":\\\"Briben\\\",\\\"mobilePhone\\\":\\\"9862317892\\\",\\\"secondEmail\\\":null,\\\"login\\\":\\\"trainrail920@gmail.com\\\",\\\"email\\\":\\\"trainrail920@gmail.com\\\"},\\\"credentials\\\":{\\\"password\\\":{},\\\"emails\\\":[{\\\"value\\\":\\\"trainrail920@gmail.com\\\",\\\"status\\\":\\\"VERIFIED\\\",\\\"type\\\":\\\"PRIMARY\\\"}],\\\"recovery_question\\\":{\\\"question\\\":\\\"Who's a major player in the cowboy scene?\\\"},\\\"provider\\\":{\\\"type\\\":\\\"OKTA\\\",\\\"name\\\":\\\"OKTA\\\"}},\\\"_links\\\":{\\\"self\\\":{\\\"href\\\":\\\"https:\\/\\/dev-46069497.okta.com\\/api\\/v1\\/users\\/00uu6x4cruyKyx8cV5d6\\\"}}}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="PwdResetInputEx" format="json">
+      <types:shape format="weave" example="examples/ForgetPwdInputEx.json"><![CDATA[%dw 2.0
+
+type PwdResetInputEx = {|
+  password: {| value: String |}, 
+  recovery_question: {| answer: String |}
+|} {"example": "{\\\"password\\\":{\\\"value\\\":\\\"usr11320\\\"},\\\"recovery_question\\\":{\\\"answer\\\":\\\"Annie Annie\\\"}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="ForgetPwdPostInputEx" format="json">
+      <types:shape format="weave" example="examples/ForgetPwdPostEx.json"><![CDATA[%dw 2.0
+
+type ForgetPwdPostInputEx = {|
+  login: String, 
+  newPassword: String, 
+  answer: String
+|} {"example": "{\\\"login\\\":\\\"user111@gmail.com\\\",\\\"newPassword\\\":\\\"user113\\\",\\\"answer\\\":\\\"Annie Okley\\\"}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#e7b48cf7-c6bb-4e1d-b3e6-68ecf4e9f2df">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="Auth_inputEx"/>
+        </types:message>
+        <types:variables>
+          <types:variable name="verifiedValues" type="VerifyReturnEx"/>
+        </types:variables>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#244d83de-5164-4446-beff-7781f77d11f6">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="Auth-VerifyInputEx"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#ce78fb62-df63-4384-81df-be41470f4985">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="Auth_VerifyEx"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#1042552a-ee5d-4c2f-80fc-7121b6fc49b6">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="Auth_inputEx"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="Auth_RegisterExample"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#877516d9-6b46-4bc8-99e7-32e71577ef5d">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="ForgetPwdPostInputEx"/>
+        </types:message>
+        <types:variables>
+          <types:variable name="OutputVariables" type="FindUserResultEx"/>
+        </types:variables>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="PwdResetInputEx"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

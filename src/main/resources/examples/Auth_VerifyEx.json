@@ -1,0 +1,8 @@
+{
+  "username": "trainrail04@gmail.com",
+  "password": "usrlndn324",
+  "options": {
+    "multiOptionalFactorEnroll": false,
+    "warnBeforePasswordExpired": false
+  }  
+}

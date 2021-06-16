@@ -1,0 +1,30 @@
+{
+    "expiresAt": "2021-05-30T08:50:32.000Z",
+    "status": "SUCCESS",
+    "sessionToken": "20111mzDDrZPuAGmAVSG5zMEBDJ-GJfTfAlTiROWhHosFGEKpNevbsY",
+    "_embedded": {
+        "user": {
+            "id": "00usv3iylwsa0ndyx5d6",
+            "passwordChanged": "2021-05-24T08:35:45.000Z",
+            "profile": {
+                "login": "trainrail96@gmail.com",
+                "firstName": "Isaac",
+                "lastName": "Brock",
+                "mobilePhone": "9862317890",
+        		"secondEmail": null,
+                "locale": "en",
+                "timeZone": "America/Los_Angeles"
+            }
+        }
+    },
+    "_links": {
+        "cancel": {
+            "href": "https://dev-46069497.okta.com/api/v1/authn/cancel",
+            "hints": {
+                "allow": [
+                    "POST"
+                ]
+            }
+        }
+    }
+}

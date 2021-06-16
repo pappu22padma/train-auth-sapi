@@ -1,0 +1,94 @@
+#%RAML 1.0
+title: Train Auth API
+
+types:
+  authDatatype: !include /DataType/Auth-dataType.raml
+  authVerifyDatatype: !include /DataType/Auth-verify-dataType.raml
+  authForgotPwdDatatype: !include /DataType/Auth-forgotPwd-dataType.raml
+
+traits:
+  authTraits : !include /Traits/auth-trait.raml
+
+/authorization:
+    is: [authTraits]
+    post:
+      description: Post the customer details for authorization
+      body:
+        application/json:
+            type: authDatatype
+            examples:
+                input: !include Example/auth-example.raml
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                message: Customer account has been registered
+        400:
+          body:
+            application/json:
+              example:
+                message: Error in customer registration
+    /verify:
+      is: [authTraits]
+      post:
+        body:
+          application/json:
+            type: authVerifyDatatype
+            examples:
+              input: !include /Example/auth-verify-example.raml
+        responses:
+          200:
+            body:
+              application/json:
+                example:
+                  message: Customer account has been registered
+          400:
+            body:
+              application/json:
+                example:
+                  message: Error in customer registration
+    /update:
+      is: [authTraits]
+      patch:
+        body:
+          application/json:
+            type: authDatatype
+            examples:
+              input: !include /Example/auth-example.raml
+        responses:
+          200:
+            body:
+              application/json:
+                example:
+                  message: Cusotmer account information has been updated
+          400:
+            body:
+              application/json:
+                example:
+                  message: Error in updating the customer information
+    /ForgetPassword:
+      is: [authTraits]
+      post:
+        body:
+          application/json:
+            type: authForgotPwdDatatype
+            examples:
+              input: !include /Example/auth-forgotPwd-example.raml
+        responses:
+          200:
+            body:
+              application/json:
+                example:
+                  message: Password has been reset
+          400:
+            body:
+              application/json:
+                example:
+                  message: Error in resetting the password
+        
+              
+
+      
+
+            

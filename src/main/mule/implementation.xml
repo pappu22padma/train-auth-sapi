@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="POST\RegisterCustomerFlow" doc:id="193c6072-25bb-45ee-a1e5-ff804b89cf02" >
+		<json-logger:logger doc:name="Logger" doc:id="e3d4c21a-b289-44d7-a5f0-ec2b7e203455" config-ref="JSON_Logger_Config" message="Logging once received the user details for the user registering in the authorization service"/>
+		<ee:transform doc:name="Transform Message" doc:id="1042552a-ee5d-4c2f-80fc-7121b6fc49b6">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	profile: {
+		firstName: payload.firstName,
+		lastName: payload.lastName,
+		email: payload.email,
+		login: payload.login,
+		mobilePhone: payload.phoneNumber
+	},
+	credentials: {
+		password: {
+			value: payload.password
+		},
+		recovery_question: {
+			question: payload.question,
+			answer: payload.answer
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<try doc:name="Try" doc:id="d45eefce-e526-498b-9c3c-d75fea471581" >
+			<http:request method="POST" doc:name="Request-AuthRegister" doc:id="0ea07cc0-4a68-4aca-b23f-957bdd2d8104" config-ref="HTTP_Request_configuration" path="/users">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "SSWS " ++ p('secure::auth.token') as String,
+	"Accept" : "application/json",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"activate" : "true"
+}]]]></http:query-params>
+		</http:request>
+		</try>
+		<json-logger:logger doc:name="Logger" doc:id="176551f5-d996-4663-bd57-e25b8880ef67" config-ref="JSON_Logger_Config" message="Logging after registering in the authorization service"/>
+	</flow>
+	<flow name="POST\VerifyCustomerFlow" doc:id="7cfb9e1c-0afb-4059-8bcb-a0cc10cccbd4" >
+		<json-logger:logger doc:name="Logger" doc:id="01ca7cb9-8f66-42c2-a0fc-eb1ed1d88ee6" config-ref="JSON_Logger_Config" message="Logging once received the user details for verifying in the authorization service"/>
+		<ee:transform doc:name="Transform Message" doc:id="244d83de-5164-4446-beff-7781f77d11f6">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	username: payload.login,
+	password: payload.password,
+	options: {
+		multiOptionalFactorEnroll: false,
+		warnBeforePasswordExpired: false
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<try doc:name="Try" doc:id="e75f0361-134f-4908-a7a7-409b8cdf7425" >
+			<http:request method="POST" doc:name="Request-AuthVerify" doc:id="ce78fb62-df63-4384-81df-be41470f4985" config-ref="HTTP_Request_configuration" path="/authn">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"Accept" : "application/json",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+		</http:request>
+		</try>
+		<json-logger:logger doc:name="Logger" doc:id="66a8f30a-a010-41c8-b577-8fa6de87de1e" config-ref="JSON_Logger_Config" message="Logging after verifying in the authorization service" />
+	</flow>
+	<flow name="PATCH\updateCustomerFlow" doc:id="28339df6-f77a-49d6-8d38-4584da224021" >
+		<json-logger:logger doc:name="Logger" doc:id="62a210a5-10bb-4449-8346-bec71c1e985b" config-ref="JSON_Logger_Config" message="Logging once received the user details for the user updation in the authorization service"/>
+		<flow-ref doc:name="VerifyCustomerFlow" doc:id="1ce7fc4a-7703-4f3f-a40a-6a91c4504513" name="POST\VerifyCustomerFlow" target="verifiedValues"/>
+		<choice doc:name="Choice" doc:id="6934d5eb-229e-4d0d-aa92-366d26749dc9" >
+			<when expression="#[vars.verifiedValues.status == 'SUCCESS']">
+				<json-logger:logger doc:name="Logger" doc:id="92e68695-28c9-466b-b6e0-7b02a3bd5cea" config-ref="JSON_Logger_Config" message="Logging once received the user details has been verified successfully in authentication service"/>
+				<ee:transform doc:name="Transform Message" doc:id="e7b48cf7-c6bb-4e1d-b3e6-68ecf4e9f2df">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	profile: {
+		firstName: payload.firstName default vars.verifiedValues."_embedded".user.profile.firstName,
+		lastName: payload.lastName default vars.verifiedValues."_embedded".user.profile.lastName,
+		email: payload.email default vars.verifiedValues."_embedded".user.profile.login,
+		login: payload.login default vars.verifiedValues."_embedded".user.profile.login,
+		mobilePhone: payload.phoneNumber default vars.verifiedValues."_embedded".user.profile.mobilePhone
+	},
+	credentials: {
+		password: {
+			value: payload.password default vars.verifiedValues."_embedded".user.passwordChanged
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables />
+		</ee:transform>
+				<try doc:name="Try" doc:id="cb8af934-1dad-461c-ad1b-14107d8a5fb9" >
+					<http:request method="POST" doc:name="Request-ResetFactor" doc:id="afa6d444-ae70-46ce-a006-df9906d58bd6" config-ref="HTTP_Request_configuration" path="/users/{userId}">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "SSWS "++ p('secure::auth.token') as String
+}]]]></http:headers>
+			<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"userId" : vars.verifiedValues."_embedded".user.id
+}]]]></http:uri-params>
+		</http:request>
+				</try>
+				<json-logger:logger doc:name="Logger" doc:id="d68c522d-8532-4c2b-9d5b-183e9b783d0a" config-ref="JSON_Logger_Config" message="Logging once received the user details has been updated in the authentication service"/>
+			</when>
+			<otherwise >
+				<json-logger:logger doc:name="Logger" doc:id="80787be4-a481-4661-8b90-e6e2face06fb" config-ref="JSON_Logger_Config" message="Logging the failure of the user verification in the authentication service"/>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="POST\ForgetPasswordFlow" doc:id="5e41e052-9744-4fdb-81cd-6a3ddaec5662" >
+		<json-logger:logger doc:name="Logger" doc:id="646836aa-1dfe-45c9-b165-f32dba1c20b9" config-ref="JSON_Logger_Config" message="Logging once received the user details for the forget password in the authorization service" />
+		<http:request method="GET" doc:name="Request-FindUser" doc:id="b3177648-0db3-47ec-8ec4-3541994c8bd4" config-ref="HTTP_Request_configuration" path="/users" target="OutputVariables">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "SSWS "++ p('secure::auth.token') as String
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"q" : payload.login,
+	"limit": 1
+}]]]></http:query-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="76fbc50a-53c2-4daa-8a15-dc72880277bb" >
+			<when expression="#[vars.OutputVariables[0].status == 'ACTIVE']" >
+				<json-logger:logger doc:name="Logger" doc:id="16967e83-97d7-40b2-8c7c-33f607c89537" config-ref="JSON_Logger_Config" message="Logging after the login detail has been verified successfully in authentication service" />
+				<ee:transform doc:name="Transform Message" doc:id="877516d9-6b46-4bc8-99e7-32e71577ef5d" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+ 	password: {
+		value: payload.newPassword
+		},
+	recovery_question: { 
+		answer: payload.answer
+		 } 
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables />
+				</ee:transform>
+				<try doc:name="Try" doc:id="7d04ab1f-ce8e-4c0a-bdf9-8f0b0e8c6196" >
+					<http:request method="POST" doc:name="Request-ForgetPassword" doc:id="a03f2493-ec36-4550-87f6-a77ba4951b27" config-ref="HTTP_Request_configuration" path="/users/{userId}/credentials/forgot_password">
+					<http:headers><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "SSWS "++ p('secure::auth.token') as String
+}]]]></http:headers>
+					<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"userId" : vars.OutputVariables[0].id
+}]]]></http:uri-params>
+					<http:query-params><![CDATA[#[output application/java
+---
+{
+	"sendEmail" : "false"
+}]]]></http:query-params>
+				</http:request>
+				</try>
+				<json-logger:logger doc:name="Logger" doc:id="663662f3-1b71-4f94-bccc-e0c95670efec" config-ref="JSON_Logger_Config" message="Logging once received password has been updated" />
+			</when>
+			<otherwise >
+				<json-logger:logger doc:name="Logger" doc:id="8617ad50-e0e3-4de3-bb09-4a094819766a" config-ref="JSON_Logger_Config" message="Logging the failure of the login verification in the authentication service" />
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

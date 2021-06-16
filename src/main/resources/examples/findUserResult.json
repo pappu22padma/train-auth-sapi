@@ -1,0 +1,45 @@
+[
+    {
+        "id": "00uu6x4cruyKyx8cV5d6",
+        "status": "ACTIVE",
+        "created": "2021-05-30T13:09:07.000Z",
+        "activated": "2021-05-30T13:09:07.000Z",
+        "statusChanged": "2021-05-30T13:09:07.000Z",
+        "lastLogin": "2021-05-30T14:33:17.000Z",
+        "lastUpdated": "2021-05-30T14:33:21.000Z",
+        "passwordChanged": "2021-05-30T14:33:21.000Z",
+        "type": {
+            "id": "otyq5rg72xsgQVeem5d6"
+        },
+        "profile": {
+            "firstName": "Issac",
+            "lastName": "Briben",
+            "mobilePhone": "9862317892",
+            "secondEmail": null,
+            "login": "trainrail920@gmail.com",
+            "email": "trainrail920@gmail.com"
+        },
+        "credentials": {
+            "password": {},
+            "emails": [
+                {
+                    "value": "trainrail920@gmail.com",
+                    "status": "VERIFIED",
+                    "type": "PRIMARY"
+                }
+            ],
+            "recovery_question": {
+                "question": "Who's a major player in the cowboy scene?"
+            },
+            "provider": {
+                "type": "OKTA",
+                "name": "OKTA"
+            }
+        },
+        "_links": {
+            "self": {
+                "href": "https://dev-46069497.okta.com/api/v1/users/00uu6x4cruyKyx8cV5d6"
+            }
+        }
+    }
+]

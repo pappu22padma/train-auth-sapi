@@ -1,0 +1,16 @@
+{
+  "profile": {
+    "firstName": "Isaac",
+    "lastName": "Brock",
+    "email": "trainrail05@gmail.com",
+    "login": "trainrail05@gmail.com",
+    "mobilePhone" :9862317890
+  },
+  "credentials": {
+    "password" : { "value": "usrlndn325" },
+    "recovery_question": {
+      "question": "Who's a major player in the cowboy scene?",
+      "answer": "Annie Oakley"
+    }
+  }
+}

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:national-rail-api="http://www.mulesoft.org/schema/mule/national-rail-api" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:servicenow="http://www.mulesoft.org/schema/mule/servicenow"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/servicenow http://www.mulesoft.org/schema/mule/servicenow/current/mule-servicenow.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/national-rail-api http://www.mulesoft.org/schema/mule/national-rail-api/current/mule-national-rail-api.xsd">
+	<json-logger:config name="JSON_Logger_Config" doc:name="JSON Logger Config" doc:id="9aeb13ed-ab3c-41ca-b5dc-0e9cc4aa2e2b" environment="${mule.env}" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="bf9a0ff3-993f-4345-b335-dd5692f20cf9" basePath="${auth.basepath}">
+		<http:request-connection host="${auth.host}" port="${auth.port}" protocol="HTTPS"/>
+	</http:request-config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="ac55700a-15a0-4ed9-bec5-29f6cf458be4" file="config.yaml" key="mytoken" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="2119fffb-5c68-45e5-94db-a4458f62a7cd" file="config.yaml" />
+	<national-rail-api:config name="National_Rail_API_Config" doc:name="National Rail API Config" doc:id="fd686d1c-a79e-4da8-a871-52a95578c25b" property_host="${railAPI.host}" property_port="${railAPI.port}" property_protocol="${railAPI.protocol}" property_basePath="${railAPI.basePath}" property_responseTimeout="10000000" />
+	<configuration doc:name="Configuration" doc:id="fe8a173e-19af-4247-9aaa-e38c1c2b7496" defaultErrorHandler-ref="globalError_Handler" />
+	<error-handler name="globalError_Handler" doc:id="63c66679-7baa-4b6f-9a8f-6ffa9e09b908" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="da4716f5-7a2e-4dd8-bf36-737c7f84df8c" type="HTTP:CONNECTIVITY,HTTP:FORBIDDEN,HTTP:SERVICE_UNAVAILABLE,HTTP:UNAUTHORIZED,HTTP:GATEWAY_TIMEOUT">
+			<ee:transform doc:name="Transform Message" doc:id="be86d8e1-bab8-44a4-bd2d-91238bdf26b8" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+{
+	"Description": error.description,
+	"Message": error.muleMessage.typedValue
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="errors" ><![CDATA[{
+	"Description": error.description,
+	"Message": error.exception,
+	"Type": error.errorType.asString
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="ca650728-b953-492d-bdb0-a299db3754f0" config-ref="JSON_Logger_Config" message='#["Logging in the error for the errorType :" ++ vars.errors.Type as String ++ "and error Message :" ++ vars.errors.Description as String]' tracePoint="EXCEPTION" priority="ERROR">
+				<json-logger:content><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(vars.errors)
+}]]]></json-logger:content>
+			</json-logger:logger>
+			<national-rail-api:create-create-incident doc:name="Create incident" doc:id="a92e5ae9-024c-49fc-9f50-282e471eadee" config-ref="National_Rail_API_Config"/>
+			<ee:transform doc:name="Transform Message" doc:id="0a26ba4e-56e9-4ce1-b1d7-b1e73adca441" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-continue>
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="49c7ab21-4b9a-4ab9-bbb4-f17fc2a322e5" type="ANY">
+			<ee:transform doc:name="Transform Message" doc:id="d180dbd2-196f-40c9-925d-f012d819ca47" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+{
+	"Description": error.description,
+	"Message": error.muleMessage.typedValue
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="errors" ><![CDATA[{
+	"Description": error.description,
+	"Message": error.exception,
+	"Type": error.errorType.asString
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="Logger" doc:id="445a938d-15e0-4969-b07b-62e3f1ab8109" config-ref="JSON_Logger_Config" message='#["Logging in the error for the errorType :" ++ vars.errors.Type as String ++ "and error Message :" ++ vars.errors.Description as String]' tracePoint="EXCEPTION" priority="ERROR" >
+				<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(vars.errors)
+}]]]></json-logger:content>
+			</json-logger:logger>
+		</on-error-continue>
+	</error-handler>
+</mule>

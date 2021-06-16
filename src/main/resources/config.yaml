@@ -1,0 +1,21 @@
+mule:
+  env : "dev"
+  
+json:
+  logger:
+    application:
+      name : "JSONLoggerDemo"
+      version: "1.0"
+
+auth:
+  host: "dev-46069497.okta.com"
+  port: "443"
+  basepath: "/api/v1"
+  token : "![MiGPCwrus7JIr+06EkSX2H8Xvt/PrK6+lbk93otm852d75qd1v8L80gscFqmsfQa]"
+  
+railAPI:
+  host: "localhost"
+  port: "8081"
+  protocol: "HTTP"
+  basePath: "/api/"  
+ 
