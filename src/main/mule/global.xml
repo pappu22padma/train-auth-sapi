@@ -46,7 +46,6 @@ output application/json
     payload: JSONLoggerModule::stringifyNonJSON(vars.errors)
 }]]]></json-logger:content>
 			</json-logger:logger>
-			<national-rail-api:create-create-incident doc:name="Create incident" doc:id="a92e5ae9-024c-49fc-9f50-282e471eadee" config-ref="National_Rail_API_Config"/>
 			<ee:transform doc:name="Transform Message" doc:id="0a26ba4e-56e9-4ce1-b1d7-b1e73adca441" >
 				<ee:message >
 					<ee:set-payload ><![CDATA[%dw 2.0
